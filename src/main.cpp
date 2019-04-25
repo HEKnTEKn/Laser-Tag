@@ -17,6 +17,12 @@ IRdecode decoder;
 IRsendNEC sender;
 
 
+void shootLaser()
+{
+  sender.send(0xfd807f);
+  irReceiver.enableIRIn();
+}
+
 void setup()
 {  
   Serial.begin(9600);
@@ -31,13 +37,6 @@ void setup()
 
   irReceiver.enableIRIn();
   Serial.println("IR enabled");
-}
-
-
-void shootLaser()
-{
-  sender.send(0xfd807f);
-  irReceiver.enableIRIn();
 }
 
 
@@ -60,14 +59,14 @@ void loop()
         }
         case 0xfd40bf:  //Volume Up
         {
-        //Hit something!
-        //TODO: increase score
-        break;
+          //Hit something!
+          //TODO: increase score
+          break;
         }
-      }
-      
-      default:
-        break;
+        default:
+        {
+          break;
+        }
       }
     }
   }
