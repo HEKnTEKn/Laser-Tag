@@ -5,9 +5,9 @@
 
 /* initialize constants */
 
-const int pinTrigger = 11;
-const int pinIRReceiver = 6;
-const int pinIRSender = 9;
+const int pinTrigger = 7;
+const int pinIRReceiver = 9;
+const int pinIRSender = 11;
 //NOTE: I2C uses A4 and A5
 /* Declare Obects and variables! */
 
@@ -20,29 +20,30 @@ LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars
 
 
 int score = 0;
-int health = 3;
 
-//FIXME: byte to hex string pls
-byte fullHeart[8] = { 
-  0B00000,
-  0B00000,
-  0B01010,
-  0B11111,
-  0B11111,
-  0B01110,
-  0B00100,
-  0B00000 
+int maxHealth = 5;
+int currentHealth = maxHealth;
+
+uint8_t fullHeart[8] = { 
+  0x0,
+  0x0,
+  0xa,
+  0x1f,
+  0x1f,
+  0xe,
+  0x4,
+  0x0 
 }; 
 
-byte emptyHeart[8] = { 
-  0B00000,
-  0B00000,
-  0B01010,
-  0B10101,
-  0B10001,
-  0B01010,
-  0B00100,
-  0B00000
+uint8_t emptyHeart[8] = { 
+  0x0,
+  0x0,
+  0xa,
+  0x15,
+  0x11,
+  0xa,
+  0x4,
+  0x0
 }; 
 
 
@@ -54,57 +55,38 @@ void shootLaser()
   irReceiver.enableIRIn();
 }
 
+
+void showScore()
+{
+  unsigned int scoreSize = 0;
+  unsigned int n = score;
+do
+{
+  ++scoreSize; 
+  n /= 10;
+} while (n);
+
+  lcd.setCursor(16 - scoreSize, 0);
+  lcd.print(score);
+}
+
+
 //TODO: Health changes with RGB
 void showHealth()
 {
-  switch (health)
+  int i = 15;
+  lcd.setCursor(i,1);
+  for (int j = 0; j < currentHealth; j++)
   {
-    case 3:
-    {
-      lcd.setCursor(15,1);
-
-      //lcd.print(char(0) + char(0) + char(0));
-  
-      lcd.print(char(0));
-      lcd.print(char(0));
-      lcd.print(char(0));      
-      break;
-    }
-    case 2:
-    {
-      lcd.setCursor(15,1);
-      
-      lcd.print(char(0) + char(0) + char(1));
-  
-      //lcd.write(char(0));
-      //lcd.write(char(0));
-      //lcd.write(char(1));  
-      break;
-    }
-    case 1:
-    {
-      lcd.setCursor(15,1);
-
-      lcd.print(char(0) + char(1) + char(1));
-      //lcd.write(char(0));
-      //lcd.write(char(1));
-      //lcd.write(char(1));  
-      break;
-    }
-    case 0:
-    {
-      lcd.setCursor(15,1);
-
-      lcd.print("Game Over! " + char(1) + char(1) + char(1));
-      //lcd.write(char(1));
-      //lcd.write(char(1));
-      //lcd.write(char(1));  
-      break;
-    }
-    default:
-    {
-      break;
-    }
+    lcd.write(char(0));
+    i--;
+    lcd.setCursor(i,1);
+  }
+  for (int j = 0; j  < (maxHealth - currentHealth); j++)
+  {
+    lcd.write(char(1));
+    i--;
+    lcd.setCursor(i,1);
   }
 }
 
@@ -118,16 +100,18 @@ void setup()
   pinMode(pinTrigger, INPUT);
   attachInterrupt(digitalPinToInterrupt(pinTrigger), shootLaser, RISING);
   
-  lcd.createChar(0, fullHeart);
-  lcd.createChar(1, emptyHeart);
+
 
   lcd.init();                      // initialize the lcd 
-  Serial.println("LCD initialized");
+
+  lcd.createChar(0, fullHeart);
+  lcd.createChar(1, emptyHeart);
   lcd.backlight();
 
+  Serial.println("LCD initialized");
+
   lcd.setCursor(15,0);
-  lcd.rightToLeft();
-  lcd.print(score);
+  showScore();
   showHealth();
 
 
@@ -157,15 +141,14 @@ void loop()
           sender.send(0xfd40bf);
           irReceiver.enableIRIn();
 
-          health -= 1;
+          currentHealth--;
           showHealth();
         }
         case 0xfd40bf:  //Volume Up
         {
           //Hit something!
           score += 100;
-          lcd.setCursor(15, 0);
-          lcd.print(score);
+          showScore();
 
           break;
         }
