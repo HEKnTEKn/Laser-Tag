@@ -8,12 +8,14 @@ const int pinTrigger;
 const int pinIRReceiver;
 const int pinIRSender;
 
+
 /* Declare Obects and variables! */
 
 IRrecvPCI irReceiver(pinIRReceiver);
 IRdecode decoder;
 
 IRsendNEC sender;
+
 
 void setup()
 {  
@@ -49,10 +51,19 @@ void loop()
     {
       switch (decoder.value)
       {
-      case 0xfd807f:  //Play/Pause:
-      {
-        //change something!
+        case 0xfd00ff:  //Volume Down
+        {
+          //Got Hit!
+          sender.send(0xfd40bf);
+          irReceiver.enableIRIn();
+          //TODO: Health changes
+        }
+        case 0xfd40bf:  //Volume Up
+        {
+        //Hit something!
+        //TODO: increase score
         break;
+        }
       }
       
       default:
