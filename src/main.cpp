@@ -24,7 +24,8 @@ int score = 0;
 int maxHealth = 5;
 int currentHealth = maxHealth;
 
-uint8_t fullHeart[8] = { 
+uint8_t fullHeart[8] = 
+{ 
   0x0,
   0x0,
   0xa,
@@ -35,7 +36,8 @@ uint8_t fullHeart[8] = {
   0x0 
 }; 
 
-uint8_t emptyHeart[8] = { 
+uint8_t emptyHeart[8] =
+{ 
   0x0,
   0x0,
   0xa,
