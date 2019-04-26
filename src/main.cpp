@@ -30,6 +30,9 @@
 
 const int pinTrigger = 8;
 const int pinIRReceiver = 2;
+const int pinRGBRed = 9;
+const int pinRGBGreen = 10;
+const int pinRGBBlue = 11;
 //NOTE: IRSender uses pin 3
 //NOTE: I2C uses A4 and A5
 /* Declare Obects and variables! */
@@ -50,6 +53,7 @@ bool gameWon = false;
 int val;                        // variable for reading the pin status
 int val2;                       // variable for reading the delayed/debounced status
 int buttonState = LOW;                // variable to hold the button state
+
 
 uint8_t fullHeart[8] = 
 { 
@@ -77,6 +81,26 @@ uint8_t emptyHeart[8] =
 
 
 void (* resetFunc) (void) = 0; //declare reset function @ address 0
+
+
+void blinkRGB(int red, int green, int blue)
+{
+  analogWrite(pinRGBRed, red);
+  analogWrite(pinRGBGreen, green);
+  analogWrite(pinRGBBlue, blue);
+  delay(50);
+  analogWrite(pinRGBRed, 0);
+  analogWrite(pinRGBGreen, 0);
+  analogWrite(pinRGBBlue, 0);
+  delay(50);
+  analogWrite(pinRGBRed, red);
+  analogWrite(pinRGBGreen, green);
+  analogWrite(pinRGBBlue, blue);
+  delay(50);
+  analogWrite(pinRGBRed, 0);
+  analogWrite(pinRGBGreen, 0);
+  analogWrite(pinRGBBlue, 0);
+}
 
 
 void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
@@ -138,9 +162,12 @@ void checkWin()
 
     for (int i = 9; i >= 0; i--)
     {
+      blinkRGB(0,0,255);
       lcd.setCursor(15,1);
       lcd.print(i);
-      delay(1000);
+      delay(350);
+      blinkRGB(0,0,255);
+      delay(350);
     }
     while (digitalRead(pinTrigger) != HIGH) {}
     resetFunc();
@@ -159,9 +186,12 @@ void checkDeath()
     lcd.print("Respawn in... ");
     for (int i = 9; i >= 0; i--)
     {
+      blinkRGB(255,0,0);
       lcd.setCursor(15,1);
       lcd.print(i);
-      delay(1000);
+      delay(350);
+      blinkRGB(250,0,0);
+      delay(350);
     }
     currentHealth = maxHealth;
     lcd.clear();
@@ -178,6 +208,9 @@ void setup()
   delay(2000); while(!Serial);
 
   pinMode(pinTrigger, INPUT);
+  pinMode(pinRGBRed, OUTPUT);
+  pinMode(pinRGBGreen, OUTPUT);
+  pinMode(pinRGBBlue, OUTPUT);
 
 
   lcd.init();                      // initialize the lcd 
@@ -219,9 +252,9 @@ void loop()
 
   if (irReceiver.getResults())
   {
-    Serial.println("IR RECEIVED");
+    Serial.print("IR RECEIVED: ");
     decoder.decode();
-    Serial.print("protocol is: ");
+    Serial.print("protocol is ");
     Serial.println(decoder.protocolNum);
     if (decoder.protocolNum == NECX)
     {
@@ -231,7 +264,6 @@ void loop()
         {
           Serial.println("Got Hit!");
           currentHealth--;
-
           if (currentHealth == 0)
           {
             sender.send(0xfd807f);  //died
@@ -239,6 +271,7 @@ void loop()
           }
           else
           {
+            blinkRGB(255,255,0);
             sender.send(0xfd40bf);  //hit
             irReceiver.enableIRIn();
           }
@@ -249,6 +282,7 @@ void loop()
         case 0xfd40bf:  //Volume Up
         {
           Serial.println("Hit something!");
+          blinkRGB(0,255,0);
           score += 100;
           showScore();
 
@@ -257,6 +291,7 @@ void loop()
         case 0xfd807f:  //Play/Pause
         {
           Serial.println("Killed something!");
+          blinkRGB(255,0,255);
           score += 600;
           showScore();
 
