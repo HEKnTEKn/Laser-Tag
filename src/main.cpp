@@ -83,23 +83,19 @@ uint8_t emptyHeart[8] =
 void (* resetFunc) (void) = 0; //declare reset function @ address 0
 
 
-void blinkRGB(int red, int green, int blue)
+void blinkRGB(int red, int green, int blue, int numTimes)
 {
-  analogWrite(pinRGBRed, red);
-  analogWrite(pinRGBGreen, green);
-  analogWrite(pinRGBBlue, blue);
-  delay(50);
-  analogWrite(pinRGBRed, 0);
-  analogWrite(pinRGBGreen, 0);
-  analogWrite(pinRGBBlue, 0);
-  delay(50);
-  analogWrite(pinRGBRed, red);
-  analogWrite(pinRGBGreen, green);
-  analogWrite(pinRGBBlue, blue);
-  delay(50);
-  analogWrite(pinRGBRed, 0);
-  analogWrite(pinRGBGreen, 0);
-  analogWrite(pinRGBBlue, 0);
+  for (int i = 0; i < numTimes; i++)
+  {
+    analogWrite(pinRGBRed, red);
+    analogWrite(pinRGBGreen, green);
+    analogWrite(pinRGBBlue, blue);
+    delay(50);
+    analogWrite(pinRGBRed, 0);
+    analogWrite(pinRGBGreen, 0);
+    analogWrite(pinRGBBlue, 0);
+    delay(50);
+  }
 }
 
 
@@ -166,11 +162,11 @@ void checkWin()
 
     for (int i = 9; i >= 0; i--)
     {
-      blinkRGB(0,0,255);
+      blinkRGB(0,0,255,2);
       lcd.setCursor(15,1);
       lcd.print(i);
       delay(350);
-      blinkRGB(0,0,255);
+      blinkRGB(0,0,255,2);
       delay(350);
     }
     while (digitalRead(pinTrigger) != HIGH) {}
@@ -190,11 +186,11 @@ void checkDeath()
     lcd.print("Respawn in... ");
     for (int i = 9; i >= 0; i--)
     {
-      blinkRGB(255,0,0);
+      blinkRGB(255,0,0,2);
       lcd.setCursor(15,1);
       lcd.print(i);
       delay(350);
-      blinkRGB(250,0,0);
+      blinkRGB(250,0,0,2);
       delay(350);
     }
     currentHealth = maxHealth;
@@ -275,7 +271,7 @@ void loop()
           }
           else
           {
-            blinkRGB(255,255,0);
+            blinkRGB(255,155,0,1);
             sender.send(0xfd40bf);  //hit
             irReceiver.enableIRIn();
           }
@@ -286,7 +282,7 @@ void loop()
         case 0xfd40bf:  //Volume Up
         {
           Serial.println("Hit something!");
-          blinkRGB(0,255,0);
+          blinkRGB(0,255,0,1);
           score += 100;
           showScore();
 
@@ -295,7 +291,7 @@ void loop()
         case 0xfd807f:  //Play/Pause
         {
           Serial.println("Killed something!");
-          blinkRGB(255,0,255);
+          blinkRGB(255,0,255,1);
           score += 600;
           showScore();
 
