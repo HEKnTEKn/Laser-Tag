@@ -7,7 +7,7 @@
 
 const int pinTrigger = 7;
 const int pinIRReceiver = 9;
-const int pinIRSender = 3;  //unsure if necessary, but at very least good for context
+//NOTE: IRSender uses pin 3
 //NOTE: I2C uses A4 and A5
 /* Declare Obects and variables! */
 
@@ -64,7 +64,7 @@ void showScore()
   unsigned int n = score;
 do
 {
-  ++scoreSize; 
+  scoreSize++; 
   n /= 10;
 } while (n);
 
@@ -116,10 +116,7 @@ void setup()
   showScore();
   showHealth();
 
-
-
   pinMode(pinIRReceiver, INPUT);
-  pinMode(pinIRSender, OUTPUT);
 
   irReceiver.enableIRIn();
   Serial.println("IR enabled");
