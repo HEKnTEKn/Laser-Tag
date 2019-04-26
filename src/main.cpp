@@ -28,8 +28,8 @@
 
 /* initialize constants */
 
-const int pinTrigger = 7;
-const int pinIRReceiver = 9;
+const int pinTrigger = 8;
+const int pinIRReceiver = 2;
 //NOTE: IRSender uses pin 3
 //NOTE: I2C uses A4 and A5
 /* Declare Obects and variables! */
@@ -37,14 +37,14 @@ const int pinIRReceiver = 9;
 IRrecvPCI irReceiver(pinIRReceiver);
 IRdecode decoder;
 
-IRsendNEC sender;
+IRsendNECx sender;
 
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 
-unsigned int score = 0;
+int score = 0;
 
-int maxHealth = 5;
+const int maxHealth = 5;
 int currentHealth = maxHealth;
 bool gameWon = false;
 int val;                        // variable for reading the pin status
@@ -86,7 +86,7 @@ void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
     resetFunc();
   }
   Serial.println("pew pew!");
-  sender.send(0xfd807f);
+  sender.send(0xfd00ff);
   irReceiver.enableIRIn();
 }
 
@@ -137,31 +137,38 @@ void checkWin()
     lcd.setCursor(0,1);
     lcd.print("Trigger in... ");
 
-    for (int i = 10; i > 0; i--)
+    for (int i = 9; i >= 0; i--)
     {
-      lcd.setCursor(14,1);
+      lcd.setCursor(15,1);
       lcd.print(i);
       delay(1000);
     }
+    //lcd.clear();
+    resetFunc();
   }
 }
 
 
 void checkDeath()
 {
-  if (currentHealth == 0)
+  if (currentHealth <= 0)
   {
-    score -= 500;
+    (score < 500) ? score = 0 : score -= 500;
+    //score -= 500;
     lcd.clear();
     lcd.print("You Died!");
     lcd.setCursor(0,1);
     lcd.print("Respawn in... ");
-    for (int i = 10; i > 0; i--)
+    for (int i = 9; i >= 0; i--)
     {
-      lcd.setCursor(14,1);
+      lcd.setCursor(15,1);
       lcd.print(i);
       delay(1000);
     }
+    currentHealth = maxHealth;
+    lcd.clear();
+    showScore();
+    showHealth();
   }
 }
 
@@ -195,8 +202,9 @@ void setup()
 
 void loop()
 {
+  checkWin();
+  checkDeath();
 
-  
   val = digitalRead(pinTrigger);      // read input value and store it in val
   delay(10);                         // 10 milliseconds is a good amount of time
   val2 = digitalRead(pinTrigger);     // read the input again to check for bounces
@@ -207,19 +215,20 @@ void loop()
       if (val == HIGH)
       {
         shootLaser();
+        delay(200);
       }
     }
   }
 
-  checkWin();
-  checkDeath();
 
-  
+
   if (irReceiver.getResults())
   {
+    Serial.println("IR RECEIVED");
     decoder.decode();
-    
-    if (decoder.protocolNum == NEC)
+    Serial.print("protocol is: ");
+    Serial.println(decoder.protocolNum);
+    if (decoder.protocolNum == NECX)
     {
       switch (decoder.value)
       {
@@ -231,20 +240,24 @@ void loop()
           if (currentHealth == 0)
           {
             sender.send(0xfd807f);  //died
+            irReceiver.enableIRIn();
           }
           else
           {
             sender.send(0xfd40bf);  //hit
+            irReceiver.enableIRIn();
           }
-          irReceiver.enableIRIn();
 
           showHealth();
+
+          break;
         }
         case 0xfd40bf:  //Volume Up
         {
           Serial.println("Hit something!");
           score += 100;
           showScore();
+
           break;
         }
         case 0xfd807f:  //Play/Pause
@@ -252,15 +265,19 @@ void loop()
           Serial.println("Killed something!");
           score += 500;
           showScore();
+
           break;
         }
         default:  //Other code
         {
-          Serial.println("unknown code sent");
+          Serial.print("unknown code sent: ");
+          Serial.println(decoder.value);
+
           break;
         }
       }
     }
+    irReceiver.enableIRIn();
   }
   buttonState = val; 
 }
