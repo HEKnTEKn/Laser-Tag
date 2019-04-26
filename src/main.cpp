@@ -7,7 +7,7 @@
 
 const int pinTrigger = 7;
 const int pinIRReceiver = 9;
-const int pinIRSender = 3;
+const int pinIRSender = 3;  //unsure if necessary, but at very least good for context
 //NOTE: I2C uses A4 and A5
 /* Declare Obects and variables! */
 
