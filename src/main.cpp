@@ -107,7 +107,6 @@ while (n);
 }
 
 
-
 void showHealth()   //Shows health via heart-shaped custom characters right justified on LCD row 2
 {
   int i = 15;
@@ -143,7 +142,7 @@ void checkWin()
       lcd.print(i);
       delay(1000);
     }
-    //lcd.clear();
+    while (digitalRead(pinTrigger) != HIGH) {}
     resetFunc();
   }
 }
@@ -154,7 +153,6 @@ void checkDeath()
   if (currentHealth <= 0)
   {
     (score < 500) ? score = 0 : score -= 500;
-    //score -= 500;
     lcd.clear();
     lcd.print("You Died!");
     lcd.setCursor(0,1);
@@ -172,6 +170,7 @@ void checkDeath()
   }
 }
 
+
 void setup()
 {  
   Serial.begin(9600);
@@ -182,18 +181,15 @@ void setup()
 
 
   lcd.init();                      // initialize the lcd 
+  lcd.backlight();
 
   lcd.createChar(0, fullHeart);
   lcd.createChar(1, emptyHeart);
-  lcd.backlight();
 
   Serial.println("LCD initialized");
 
-  lcd.setCursor(15,0);
   showScore();
   showHealth();
-
-  pinMode(pinIRReceiver, INPUT);
 
   irReceiver.enableIRIn();
   Serial.println("IR enabled");
@@ -221,7 +217,6 @@ void loop()
   }
 
 
-
   if (irReceiver.getResults())
   {
     Serial.println("IR RECEIVED");
@@ -247,7 +242,6 @@ void loop()
             sender.send(0xfd40bf);  //hit
             irReceiver.enableIRIn();
           }
-
           showHealth();
 
           break;
@@ -276,6 +270,11 @@ void loop()
           break;
         }
       }
+    }
+    else
+    {
+      Serial.print("Incorrect protocol:");
+      Serial.println(decoder.protocolNum);
     }
     irReceiver.enableIRIn();
   }
