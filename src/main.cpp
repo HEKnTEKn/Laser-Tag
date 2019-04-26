@@ -108,6 +108,11 @@ void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
   analogWrite(pinRGBRed, 155);
   analogWrite(pinRGBGreen, 155);
   analogWrite(pinRGBBlue, 155);
+  delay(50);
+  analogWrite(pinRGBRed, 0);
+  analogWrite(pinRGBGreen, 0);
+  analogWrite(pinRGBBlue, 0);  
+
   Serial.println("pew pew!");
   sender.send(0xfd00ff);
   irReceiver.enableIRIn();
@@ -307,7 +312,7 @@ void loop()
     }
     else
     {
-      Serial.print("Incorrect protocol:");
+      Serial.print("Incorrect protocol: ");
       Serial.println(decoder.protocolNum);
     }
     irReceiver.enableIRIn();
