@@ -12,7 +12,9 @@
  * 3D models were created, but the UIC makerspace would not allow us to create them due to fears of the weapon-like prints causing an alarm.
  * 
  * When the micro switch is triggered, an IR code is sent out to be picked up by another one of itself, if the signal is received, the receiver 
- * will lose 1 "health", tracked by the LCD display
+ * will lose 1 "health", tracked by the LCD display, and fire back a seperate code denoting a successful hit to the sender.
+ * On a successful hit, the sender will earn 100 points. Being the last one alive grants 300 additional points,
+ * and the one with the highest amount of points will secure the Epic Victory Royale.
  * 
  */
 
