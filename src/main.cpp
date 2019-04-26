@@ -105,10 +105,6 @@ void blinkRGB(int red, int green, int blue)
 
 void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
 {
-  if (gameWon == true)
-  {
-    resetFunc();
-  }
   Serial.println("pew pew!");
   sender.send(0xfd00ff);
   irReceiver.enableIRIn();
