@@ -47,6 +47,9 @@ unsigned int score = 0;
 int maxHealth = 5;
 int currentHealth = maxHealth;
 bool gameWon = false;
+int val;                        // variable for reading the pin status
+int val2;                       // variable for reading the delayed/debounced status
+int buttonState = LOW;                // variable to hold the button state
 
 uint8_t fullHeart[8] = 
 { 
@@ -82,6 +85,7 @@ void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
   {
     resetFunc();
   }
+  Serial.println("pew pew!");
   sender.send(0xfd807f);
   irReceiver.enableIRIn();
 }
@@ -168,8 +172,6 @@ void setup()
   delay(2000); while(!Serial);
 
   pinMode(pinTrigger, INPUT);
-  attachInterrupt(digitalPinToInterrupt(pinTrigger), shootLaser, RISING);
-  
 
 
   lcd.init();                      // initialize the lcd 
@@ -193,8 +195,25 @@ void setup()
 
 void loop()
 {
+
+  
+  val = digitalRead(pinTrigger);      // read input value and store it in val
+  delay(10);                         // 10 milliseconds is a good amount of time
+  val2 = digitalRead(pinTrigger);     // read the input again to check for bounces
+  if (val == val2)  // make sure we got 2 consistant readings!
+  {  
+    if (val != buttonState) 
+    {
+      if (val == HIGH)
+      {
+        shootLaser();
+      }
+    }
+  }
+
   checkWin();
   checkDeath();
+
   
   if (irReceiver.getResults())
   {
@@ -206,7 +225,7 @@ void loop()
       {
         case 0xfd00ff:  //Volume Down
         {
-          //Got Hit!
+          Serial.println("Got Hit!");
           currentHealth--;
 
           if (currentHealth == 0)
@@ -223,23 +242,25 @@ void loop()
         }
         case 0xfd40bf:  //Volume Up
         {
-          //Hit something!
+          Serial.println("Hit something!");
           score += 100;
           showScore();
           break;
         }
         case 0xfd807f:  //Play/Pause
         {
-          // killed something!
+          Serial.println("Killed something!");
           score += 500;
           showScore();
           break;
         }
         default:  //Other code
         {
+          Serial.println("unknown code sent");
           break;
         }
       }
     }
   }
+  buttonState = val; 
 }
