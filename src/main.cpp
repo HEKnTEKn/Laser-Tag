@@ -105,6 +105,9 @@ void blinkRGB(int red, int green, int blue)
 
 void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
 {
+  analogWrite(pinRGBRed, 155);
+  analogWrite(pinRGBGreen, 155);
+  analogWrite(pinRGBBlue, 155);
   Serial.println("pew pew!");
   sender.send(0xfd00ff);
   irReceiver.enableIRIn();
