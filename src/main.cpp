@@ -1,3 +1,21 @@
+/**
+ * Laser-Tag
+ * CS-362 w/ proffessor Troy
+ * A collaborated project by:
+ *  Victor Fong: vfong3 - 665878537
+ *  Hayley Christianson: hchris6 - 
+ *  Tom Le: ble23 - 668579150
+ * 
+ * Program uses a rolling micro switch, IR receiver, IR LED implementing a Transistor, and a LCD using a I2C backpack with an Arduino,
+ * housed in a gun-like housing made of artists foam.
+ * 
+ * 3D models were created, but the UIC makerspace would not allow us to create them due to fears of the weapon-like prints causing an alarm.
+ * 
+ * When the micro switch is triggered, an IR code is sent out to be picked up by another one of itself, if the signal is received, the receiver 
+ * will lose 1 "health", tracked by the LCD display
+ * 
+ */
+
 #include <Arduino.h>
 #include <IRLibAll.h>
 #include <LiquidCrystal_I2C.h>
@@ -51,14 +69,14 @@ uint8_t emptyHeart[8] =
 
 
 
-void shootLaser()
+void shootLaser()   //connected to interrupt of pinTrigger. shoots irLaser
 {
   sender.send(0xfd807f);
   irReceiver.enableIRIn();
 }
 
 
-void showScore()
+void showScore()  //Shows score right-justified on LCD row 1
 {
   unsigned int scoreSize = 0;
   unsigned int n = score;
@@ -73,8 +91,8 @@ do
 }
 
 
-//TODO: Health changes with RGB
-void showHealth()
+
+void showHealth()   //Shows health via heart-shaped custom characters right justified on LCD row 2
 {
   int i = 15;
   lcd.setCursor(i,1);
