@@ -257,7 +257,7 @@ void loop()
         case 0xfd807f:  //Play/Pause
         {
           Serial.println("Killed something!");
-          score += 500;
+          score += 600;
           showScore();
 
           break;
