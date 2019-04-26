@@ -128,7 +128,7 @@ void showHealth()   //Shows health via heart-shaped custom characters right just
 
 void checkWin()
 {
-  if (score >= 1500)
+  if (score >= 2000)
   {
     gameWon = true;
     lcd.clear();
